@@ -1,5 +1,7 @@
 // YUNUEN PORTES RAMÍREZ
-#include <iostream> 
+
+#include <iostream>
+#include <string> // para usar strings en la lista
 using namespace std;
 
 // FUNCIONES TEMPLATE
@@ -8,7 +10,7 @@ using namespace std;
 template <typename T>
 void PrintArray(T arr[], int size)
 {
-    for (int i = 0; i < size; i++) // recorre todo el arreglo
+    for (int i = 0; i < size; i++) // recorre el arreglo
     {
         cout << arr[i] << " "; // imprime cada elemento seguido de un espacio
     }
@@ -16,7 +18,7 @@ void PrintArray(T arr[], int size)
 }
 
 // DIRECTIVA DE PREPROCESADOR
-#define COUNT_DYNAMIC_ARRAY_COPIES 1 // activa el contador de copias
+#define COUNT_DYNAMIC_ARRAY_COPIES 1 // activa el contador de copias (1 = sí, 0 = no)
 
 // CLASE DYNAMICARRAY
 template <typename T>
@@ -24,102 +26,90 @@ class DynamicArray
 {
 private:
     T* data;      // puntero al arreglo dinámico
-    int count;    // cuántos elementos tenemos actualmente
-    int capacity; // cuánto espacio total tenemos reservado
+    int count;    // cuántos elementos hay
+    int capacity; // cuánto espacio tenemos reservado
 
 #if COUNT_DYNAMIC_ARRAY_COPIES
-    int copyCounter; // contador de copias (solo si está activado arriba)
+    int copyCounter; // cuenta cuántas copias se han hecho en los resize
 #endif
 
     void resize(int newCapacity)
     {
-        // esta función se llama cuando ya no cabe más, o cuando shrink_to_fit lo pide
-        T* newData = new T[newCapacity]; // se crea un nuevo arreglo con más (o menos) espacio
+        T* newData = new T[newCapacity]; // se pide nuevo arreglo
 
+        for (int i = 0; i < count; i++) // se copian los datos al nuevo
+        {
+            newData[i] = data[i]; // se copian los valores
 #if COUNT_DYNAMIC_ARRAY_COPIES
-        for (int i = 0; i < count; i++)
-        {
-            newData[i] = data[i]; // se copian los datos al nuevo arreglo
-            copyCounter++;        // se cuenta cada copia que se hace
-        }
-#else
-        for (int i = 0; i < count; i++)
-        {
-            newData[i] = data[i]; // mismo proceso pero sin contar
-        }
+            copyCounter++; // solo cuenta si está activado el define
 #endif
+        }
 
-        delete[] data;     // se libera el arreglo viejo
-        data = newData;    // ahora "data" apunta al nuevo arreglo
-        capacity = newCapacity; // se actualiza el nuevo tamaño máximo
+        delete[] data;  // se libera el viejo
+        data = newData; // apuntamos al nuevo
+        capacity = newCapacity; // actualizamos el tamaño
     }
 
 public:
-    // constructor que arranca con capacidad de 2 elementos
+    // constructor
     DynamicArray()
     {
-        capacity = 2;              // empezamos con 2 espacios
-        data = new T[capacity];    // reservamos memoria para esos 2
-        count = 0;                 // al inicio no hay elementos
-
+        capacity = 2; // espacio inicial
+        data = new T[capacity]; // reservamos memoria
+        count = 0; // sin elementos todavía
 #if COUNT_DYNAMIC_ARRAY_COPIES
-        copyCounter = 0;           // el contador inicia en 0
+        copyCounter = 0; // inicia en cero
 #endif
     }
 
     void Append(T value)
     {
-        // agrega un valor al final del arreglo
-        if (count == capacity) // si ya está lleno...
+        // agrega un valor al final
+        if (count == capacity) // si ya no cabe más
         {
             resize(capacity * 2); // duplicamos el espacio
         }
-
-        data[count] = value; // guardamos el valor al final
-        count++;             // aumentamos el número de elementos
+        data[count] = value;
+        count++; // aumenta el número de elementos
     }
 
     void push_back(T value)
     {
-        // igual que append, solo por costumbre de vector
-        Append(value);
+        Append(value); // igual que append
     }
 
     void pop_back()
     {
-        // elimina el último valor (solo lo descuenta)
         if (count > 0)
         {
-            count--; // "olvida" el último elemento
+            count--; // simplemente se "olvida" el último
         }
     }
 
     void shrink_to_fit()
     {
-        // reduce el espacio al mínimo necesario
+        // recorta el arreglo al tamaño justo
         if (capacity != count)
         {
-            resize(count); // se ajusta exactamente a los elementos actuales
+            resize(count);
         }
     }
 
     T& operator[](int index)
     {
-        // para poder usar corchetes como en los arreglos normales
-        return data[index]; // regresa una referencia al elemento
+        return data[index]; // permite usar corchetes []
     }
 
     int size()
     {
-        return count; // cuántos elementos hay en total
+        return count; // cuántos elementos hay
     }
 
     void print()
     {
-        // imprime todos los elementos que hay
         for (int i = 0; i < count; i++)
         {
-            cout << data[i] << " "; // imprime uno por uno
+            cout << data[i] << " "; // imprime todos
         }
         cout << endl;
     }
@@ -127,14 +117,13 @@ public:
 #if COUNT_DYNAMIC_ARRAY_COPIES
     int getCopyCounter()
     {
-        // regresa el total de copias que se hicieron
-        return copyCounter;
+        return copyCounter; // regresa el número de copias
     }
 #endif
 
     ~DynamicArray()
     {
-        delete[] data; // borra el arreglo cuando ya no se usa
+        delete[] data; // libera la memoria al final
     }
 };
 
@@ -145,95 +134,101 @@ class LinkedList
 private:
     struct Node
     {
-        T value;     // valor que guarda el nodo
-        Node* next;  // apunta al siguiente nodo
+        T value;     // lo que guarda el nodo
+        Node* next;  // a quién apunta
     };
 
-    Node* head; // inicio de la lista
+    Node* head; // apunta al inicio de la lista
 
 public:
     LinkedList()
     {
-        head = nullptr; // lista vacía al inicio
+        head = nullptr; // al inicio está vacía
     }
 
     void push_front(T value)
     {
-        // agrega al inicio de la lista
-        Node* newNode = new Node; // se crea un nuevo nodo
+        // agrega al inicio
+        Node* newNode = new Node; // se crea nuevo nodo
         newNode->value = value;   // se le asigna el valor
-        newNode->next = head;     // apunta al anterior primer nodo
-        head = newNode;           // ahora el nuevo nodo es el primero
+        newNode->next = head;     // apunta al que estaba antes
+        head = newNode;           // ahora es el nuevo primero
     }
 
-    void pop_front()
+    T pop_front()
     {
-        // elimina el primer nodo (si hay alguno)
+        // saca y regresa el primer valor
         if (head != nullptr)
         {
-            Node* temp = head;    // se guarda el nodo actual
-            head = head->next;    // se avanza al siguiente
-            delete temp;          // se borra el anterior
+            Node* temp = head;       // guardamos el nodo
+            T val = temp->value;     // guardamos el valor que tenía
+            head = head->next;       // avanzamos al siguiente
+            delete temp;             // borramos el anterior
+            return val;              // regresamos el valor eliminado
         }
+
+        return T(); // si no hay nada, se regresa un valor por defecto
     }
 
-    void 打印()
+    void imprimir()
     {
-        // imprime los valores de la lista (sí, está en chino)
+        // imprime los valores de la lista
         Node* current = head;
         while (current != nullptr)
         {
-            cout << current->value << " "; // imprime cada nodo
-            current = current->next;       // avanza al siguiente
+            cout << current->value << " ";
+            current = current->next;
         }
         cout << endl;
     }
 
     void liberarMemoria()
     {
-        // borra todos los nodos de la lista
+        // limpia toda la lista
         while (head != nullptr)
         {
-            pop_front(); // borra uno por uno desde el inicio
+            pop_front(); // borra uno por uno
         }
     }
 };
 
-// MAIN
+// MAIN PRINCIPAL
 int main()
 {
-    // arreglo normal
-    int numeros[] = { 10, 20, 30, 40 }; // arreglo de enteros
-    PrintArray(numeros, 4);           // se imprime usando template
+    // PrintArray
+    int numeros[] = {10, 20, 30, 40}; // arreglo normal
+    PrintArray(numeros, 4);           // se imprime
 
-    // probando DynamicArray
-    DynamicArray<int> miArreglo;      // se crea arreglo dinámico de int
-    miArreglo.Append(100);            // agrega 100
-    miArreglo.push_back(200);         // agrega 200
-    miArreglo.push_back(300);         // agrega 300
-    miArreglo.print();                // imprime todos: 100 200 300
+    // DynamicArray en acción
+    DynamicArray<int> miArreglo;
+    miArreglo.Append(100);       // agrega 100
+    miArreglo.push_back(200);    // agrega 200
+    miArreglo.push_back(300);    // agrega 300
+    miArreglo.print();           // imprime todo
 
-    cout << "Primer elemento: " << miArreglo[0] << endl; // accede con []
+    cout << "Primer elemento: " << miArreglo[0] << endl; // acceso con []
 
-    miArreglo.pop_back(); // quita el último (300)
-    miArreglo.print();    // imprime otra vez: 100 200
+    miArreglo.pop_back(); // quita el último
+    miArreglo.print();    // vuelve a imprimir
 
-    miArreglo.shrink_to_fit(); // recorta memoria para solo esos 2
+    miArreglo.shrink_to_fit(); // ajusta memoria al tamaño justo
 
 #if COUNT_DYNAMIC_ARRAY_COPIES
     cout << "Copias realizadas en resize: " << miArreglo.getCopyCounter() << endl; // muestra cuántas veces se copió
 #endif
 
-    // probando LinkedList
-    LinkedList<string> lista; // lista enlazada de strings
-    lista.push_front("mundo"); // inserta "mundo" al inicio
-    lista.push_front("hola");  // ahora "hola" queda antes de "mundo"
-    lista.打印();              // imprime: hola mundo
+    // LinkedList en acción
+    LinkedList<string> lista;
+    lista.push_front("mundo");
+    lista.push_front("hola");
+    lista.imprimir(); // imprime: hola mundo
 
-    lista.pop_front(); // quita "hola"
-    lista.打印();      // ahora solo: mundo
+    string eliminado = lista.pop_front(); // saca y guarda el que se quitó
+    cout << "Se eliminó: " << eliminado << endl;
 
-    lista.liberarMemoria(); // borra lo que quede por si acaso
+    lista.imprimir(); // muestra lo que queda
+
+    lista.liberarMemoria(); // limpia la lista
 
     return 0;
 }
