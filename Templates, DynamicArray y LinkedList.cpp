@@ -167,7 +167,9 @@ public:
             return val;              // regresamos el valor eliminado
         }
 
-        return T(); // si no hay nada, se regresa un valor por defecto
+        // si no hay nada, mandamos advertencia y regresamos valor por defecto
+        cout << "Advertencia: la lista está vacía, no hay nada que eliminar." << endl;
+        return T();
     }
 
     void imprimir()
@@ -190,6 +192,11 @@ public:
             pop_front(); // borra uno por uno
         }
     }
+
+    // RESPUESTA A 2.2
+    // En la clase LinkedList **no falta liberar memoria** porque ya lo hacemos con la función liberarMemoria(),
+    // que borra nodo por nodo usando pop_front() hasta que head queda en nullptr.
+    // Mientras se llame esa función antes de terminar el programa, no hay fuga de memoria. 👍
 };
 
 // MAIN PRINCIPAL
@@ -225,9 +232,9 @@ int main()
 
     string eliminado = lista.pop_front(); // saca y guarda el que se quitó
     cout << "Se eliminó: " << eliminado << endl;
-
-    lista.imprimir(); // muestra lo que queda
-
+    lista.pop_front(); // elimina "mundo"
+    lista.pop_front(); // intenta eliminar cuando ya está vacía
+    lista.imprimir(); // muestra lo que queda (debería estar vacía)
     lista.liberarMemoria(); // limpia la lista
 
     return 0;
