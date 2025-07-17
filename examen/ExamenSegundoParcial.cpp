@@ -1,60 +1,57 @@
-// YUNUEN PORTES RAMÍREZ - ESTRUCTURAS DE DATOS Y HERENCIA EN C++
-
+// YUNUEN PORTES RAMÍREZ 
 // profe, perdon por la tardanza, pero si tuve varios problemas ahi personales y con la tarea en general, no sabia como subirlo, se me olvido todo :b
-// de referencia use este; cplusplus.com - forward_list, chat para que me ayudara en cosas como lo de las figuras y para que me ayudara a entregarlo la vdd
-//1
-#pragma once
+// de referencia use este: cplusplus.com - forward_list, y también me apoyé del chat para cosas como las figuras y para que me ayudara a entregar, la vdd.
+
 #include <iostream>
 #include <forward_list> // para la pila (stack)
 #include <cmath>        // para tan() en FiguraNLados
 using namespace std;
 
-// Esta clase es una lista ligada con un nodo especial al inicio (nodo centinela),
-// lo que nos ayuda a simplificar las operaciones en los extremos (inicio/final).
+// SENTINEL LINKED LIST (VERSION OFICIAL CLASE)
+// Esta clase es una lista ligada con nodo centinela (un nodo especial que no guarda datos reales)
+// y facilita mucho hacer inserciones y eliminaciones al frente y al final.
 template <typename T>
-class SentinelLinkedList
-{
+class SentinelLinkedList {
 private:
-    struct Node
-    {
-        T value;      // valor del nodo
-        Node* next;   // puntero al siguiente
+    struct Node {
+        T value;
+        Node* next;
     };
 
-    Node* head; // nodo centinela
-    Node* tail; // último nodo real (el que contiene datos)
-    int count;  // cuántos nodos reales hay
+    Node* head; // Nodo centinela (antes del primero real)
+    Node* tail; // Último nodo real
+    int count;  // Cuántos elementos reales hay
 
 public:
-    // Constructor: al inicio solo hay un nodo centinela
-    SentinelLinkedList()
-    {
-        head = new Node();
+    SentinelLinkedList() {
+        head = new Node{};
         tail = head;
         count = 0;
     }
 
-    // Agrega al final
-    void PushBack(T val)
-    {
-        Node* newNode = new Node{ val, nullptr };
+    ~SentinelLinkedList() {
+        Node* current = head;
+        while (current != nullptr) {
+            Node* temp = current;
+            current = current->next;
+            delete temp;
+        }
+    }
+
+    void PushBack(T value) {
+        Node* newNode = new Node{ value, nullptr };
         tail->next = newNode;
         tail = newNode;
         count++;
     }
 
-    // Elimina el último nodo (el real, no el centinela)
-    T PopBack()
-    {
-        if (count == 0)
-        {
+    T PopBack() {
+        if (count == 0) {
             cout << "Cuidado, estás haciendo pop back cuando la lista está vacía\n";
             return {};
         }
-
         Node* prev = head;
         while (prev->next != tail) prev = prev->next;
-
         T val = tail->value;
         delete tail;
         tail = prev;
@@ -63,24 +60,18 @@ public:
         return val;
     }
 
-    // Inserta al frente (después del centinela)
-    void PushFront(T val)
-    {
-        Node* newNode = new Node{ val, head->next };
+    void PushFront(T value) {
+        Node* newNode = new Node{ value, head->next };
         head->next = newNode;
         if (count == 0) tail = newNode;
         count++;
     }
 
-    // Elimina el primero real (después del centinela)
-    T PopFront()
-    {
-        if (count == 0)
-        {
+    T PopFront() {
+        if (count == 0) {
             cout << "Advertencia: la lista está vacía, no se puede hacer PopFront\n";
             return {};
         }
-
         Node* first = head->next;
         T val = first->value;
         head->next = first->next;
@@ -90,82 +81,49 @@ public:
         return val;
     }
 
-    // Regresa el primer valor (sin eliminar)
-    T Front()
-    {
-        if (count == 0)
-        {
+    T Front() const {
+        if (count == 0) {
             cout << "Advertencia, la lista está vacía, no hay Front\n";
             return {};
         }
         return head->next->value;
     }
 
-    // Regresa cuántos elementos hay
-    int GetCount() { return count; }
-
-    // Libera toda la memoria (incluyendo centinela)
-    ~SentinelLinkedList()
-    {
-        Node* current = head;
-        while (current != nullptr)
-        {
-            Node* temp = current;
-            current = current->next;
-            delete temp;
-        }
+    int GetCount() const {
+        return count;
     }
 };
-//2
+// LQUEUE 
+// Implementación de una cola (FIFO) con la SentinelLinkedList
 template <typename T>
-class LQueue
-{
+class LQueue {
 private:
-    SentinelLinkedList<T> data; // usamos la lista como base
+    SentinelLinkedList<T> data;
 
 public:
-    LQueue() {}
-
-    int GetCount();      // cuántos elementos hay
-    void Enqueue(T val); // insertar al final
-    T Dequeue();         // quitar del frente
-    T Front();           // ver el frente sin quitar
+    void Enqueue(T value) { data.PushBack(value); }
+    T Dequeue() { return data.PopFront(); }
+    T Front() const { return data.Front(); }
+    int GetCount() const { return data.GetCount(); }
 };
-
-// Ahora implementamos lo anterior fuera de la clase (como si fuera un archivo .tpp)
-
+// LSTACK 
+// Pila (LIFO) basada en forward_list (de STL) con contador
 template <typename T>
-int LQueue<T>::GetCount() { return data.GetCount(); }
-
-template <typename T>
-void LQueue<T>::Enqueue(T val) { data.PushBack(val); }
-
-template <typename T>
-T LQueue<T>::Dequeue() { return data.PopFront(); }
-
-template <typename T>
-T LQueue<T>::Front() { return data.Front(); }
-//3
-template <typename T>
-class LStack
-{
+class LStack {
 private:
-    forward_list<T> data; // usamos la lista de STL
+    forward_list<T> data;
     int count;
 
 public:
-    LStack() { count = 0; }
+    LStack() : count(0) {}
 
-    void Push(T val)
-    {
-        data.push_front(val); // se agrega al inicio (O(1))
+    void Push(T val) {
+        data.push_front(val); // más fácil así, al inicio
         count++;
     }
 
-    T Pop()
-    {
-        if (count == 0)
-        {
+    T Pop() {
+        if (count == 0) {
             cout << "Advertencia: el stack está vacío, no se puede hacer Pop\n";
             return {};
         }
@@ -175,22 +133,19 @@ public:
         return val;
     }
 
-    T Peak()
-    {
-        if (count == 0)
-        {
+    T Peak() const {
+        if (count == 0) {
             cout << "Advertencia: el stack está vacío, no hay Peak\n";
             return {};
         }
         return data.front();
     }
 
-    int Count() { return count; }
+    int Count() const { return count; }
 };
-//4
-// Esta clase es abstracta. Solo sirve como base.
-class Figura
-{
+// JERARQUÍA DE FIGURAS
+// Clase base Figura, clases derivadas con override y destructores bien puestos
+class Figura {
 protected:
     string nombre;
 
@@ -200,148 +155,125 @@ public:
 
     virtual float CalcularArea() const = 0;
     virtual float CalcularPerimetro() const = 0;
-
     const string& ObtenerNombreDeFigura() const { return nombre; }
 };
 
-// Círculo clásico: área y perímetro con pi
-class Circulo : public Figura
-{
+class Circulo : public Figura {
 private:
     float radio;
 
 public:
     Circulo(float r) : Figura("Circulo"), radio(r) {}
+    ~Circulo() override {}
 
     float CalcularArea() const override { return 3.1416f * radio * radio; }
     float CalcularPerimetro() const override { return 2 * 3.1416f * radio; }
 };
 
-// Cuadrado con lado igual
-class Cuadrado : public Figura
-{
-protected:
+class Cuadrado : public Figura {
+private: //Antes lado era protected para que el Cubo pudiera usarlo directo porque hereda de Cuadrado, pero vi lo que me pregunto y supuse que fuera private para aplicar bien la encapsulación, asi creo que podemos hacer que todo se haga por medio de funciones (como CalcularArea()), y no andar accediendo variables desde afuera. Ya lo cambié, y ahora el Cubo calcula las cosas sin tocar lado directamente, todo bonito y seguro, esoero ;;
     float lado;
 
 public:
     Cuadrado(float l) : Figura("Cuadrado"), lado(l) {}
+    ~Cuadrado() override {}
 
     float CalcularArea() const override { return lado * lado; }
     float CalcularPerimetro() const override { return 4 * lado; }
 };
 
-// Figura de n lados iguales (polígono regular)
-class FiguraNLados : public Figura
-{
+class FiguraNLados : public Figura {
 private:
     int lados;
     float longitud;
 
 public:
-    FiguraNLados(int n, float l) : Figura("FiguraNLados")
-    {
-        if (n < 3)
-        {
-            cout << "Una figura debe tener al menos 3 lados. Se asigna 3 por defecto.\n";
-            lados = 3;
-        }
-        else lados = n;
+    FiguraNLados(int n, float l) : Figura("FiguraNLados"), lados(n), longitud(l) {}
+    ~FiguraNLados() override {}
 
-        longitud = l;
-    }
-
-    float CalcularArea() const override
-    {
+    float CalcularArea() const override {
         return (lados * longitud * longitud) / (4 * tan(3.1416f / lados));
     }
 
-    float CalcularPerimetro() const override { return lados * longitud; }
+    float CalcularPerimetro() const override {
+        return lados * longitud;
+    }
 };
 
-// Cubo: hereda de cuadrado (cada cara es un cuadrado)
-class Cubo : public Cuadrado
-{
+class Cubo : public Cuadrado {
 public:
     Cubo(float l) : Cuadrado(l) { nombre = "Cubo"; }
+    ~Cubo() override {}
 
-    float Surface() const { return 6 * lado * lado; }
-    float Volumen() const { return lado * lado * lado; }
+    float Surface() const { return 6 * CalcularArea(); }
+
+    float Volumen() const {
+        float lado = sqrt(CalcularArea());
+        return lado * lado * lado;
+    }
 
     float CalcularArea() const override { return Surface(); }
-    float CalcularPerimetro() const override { return 12 * lado; }
+    float CalcularPerimetro() const override {
+        return 12 * sqrt(CalcularArea());
+    }
 };
 
-// Línea hecha de segmentos (no tiene área)
-class Linea : public Figura
-{
+class Linea : public Figura {
 private:
     float* segmentos;
     int tam;
 
 public:
-    Linea(float* arr, int n) : Figura("Linea"), tam(n)
-    {
+    Linea(float* arr, int n) : Figura("Linea"), tam(n) {
         segmentos = new float[n];
         for (int i = 0; i < n; i++) segmentos[i] = arr[i];
     }
 
-    Linea(const Linea& otra) : Figura("Linea"), tam(otra.tam)
-    {
-        segmentos = new float[tam];
-        for (int i = 0; i < tam; i++) segmentos[i] = otra.segmentos[i];
+    ~Linea() override {
+        delete[] segmentos;
     }
 
-    void SetSegmento(int i, float val)
-    {
-        if (i >= 0 && i < tam) segmentos[i] = val;
-        else cout << "Índice fuera de rango al modificar segmento.\n";
-    }
+    float CalcularArea() const override { return 0; } // no tiene área
 
-    ~Linea() { delete[] segmentos; }
-
-    float CalcularArea() const override { return 0; }
-
-    float CalcularPerimetro() const override
-    {
+    float CalcularPerimetro() const override {
         float suma = 0;
         for (int i = 0; i < tam; i++) suma += segmentos[i];
         return suma;
     }
 };
-//5
-int main()
-{
-    // --- COLA ---
-    cout << "--- LQueue (Cola) ---\n";
+// MAIN
+// Aquí se prueba todo lo anterior con ejemplos :)
+int main() {
+    // Cola
     LQueue<int> cola;
     cola.Enqueue(10);
     cola.Enqueue(20);
-    cout << "Front: " << cola.Front() << "\n";
-    cout << "Dequeue: " << cola.Dequeue() << "\n";
+    cola.Enqueue(30);
+    cout << "Front de la cola: " << cola.Front() << endl;
+    cola.Dequeue();
+    cout << "Nuevo Front: " << cola.Front() << ", Count: " << cola.GetCount() << endl;
 
-    // --- PILA ---
-    cout << "\n--- LStack (Pila) ---\n";
+    // Pila
     LStack<string> pila;
-    pila.Push("Hola");
-    pila.Push("Mundo");
-    cout << "Peak: " << pila.Peak() << "\n";
-    cout << "Pop: " << pila.Pop() << "\n";
+    pila.Push("uno");
+    pila.Push("dos");
+    cout << "Tope de pila: " << pila.Peak() << endl;
+    pila.Pop();
+    cout << "Nuevo tope: " << pila.Peak() << ", Count: " << pila.Count() << endl;
 
-    // --- FIGURAS ---
-    cout << "\n--- Figuras ---\n";
-    Circulo c(3);
-    Cuadrado q(4);
-    FiguraNLados pent(5, 2);
-    Cubo cubo(2);
+    // Figuras
+    Figura* f1 = new Circulo(5);
+    Figura* f2 = new Cuadrado(4);
+    Figura* f3 = new FiguraNLados(6, 3);
     float segs[] = { 1.2, 2.5, 3.1 };
-    Linea linea(segs, 3);
+    Figura* f4 = new Linea(segs, 3);
+    Figura* f5 = new Cubo(3);
 
-    Figura* figuras[] = { &c, &q, &pent, &cubo, &linea };
-
-    for (Figura* f : figuras)
-    {
-        cout << f->ObtenerNombreDeFigura() << " - Área: " << f->CalcularArea()
-            << ", Perímetro: " << f->CalcularPerimetro() << "\n";
+    Figura* figuras[] = { f1, f2, f3, f4, f5 };
+    for (auto fig : figuras) {
+        cout << fig->ObtenerNombreDeFigura() << ": A=" << fig->CalcularArea()
+            << ", P=" << fig->CalcularPerimetro() << endl;
+        delete fig; // liberamos memoria bien
     }
 
     return 0;
