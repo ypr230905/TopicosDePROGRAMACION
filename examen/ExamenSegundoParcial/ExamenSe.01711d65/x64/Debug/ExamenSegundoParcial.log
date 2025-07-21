@@ -1,0 +1,4 @@
+﻿  ExamenSegundoParcial.cpp
+C:\Users\unuen\source\repos\ExamenSegundoParcial\ExamenSegundoParcial.cpp(336,22): warning C4305: 'inicializando': truncamiento de 'double' a 'float'
+C:\Users\unuen\source\repos\ExamenSegundoParcial\ExamenSegundoParcial.cpp(336,32): warning C4305: 'inicializando': truncamiento de 'double' a 'float'
+  ExamenSegundoParcial.vcxproj -> C:\Users\unuen\source\repos\ExamenSegundoParcial\x64\Debug\ExamenSegundoParcial.exe
