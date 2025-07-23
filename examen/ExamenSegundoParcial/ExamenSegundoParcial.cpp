@@ -8,6 +8,35 @@
 #include "SentinelLinkedList.h" // usamos la versión exacta del repo
 using namespace std;
 
+// --- IMPLEMENTAMOS PopFront PARA LA SENTINEL DEL PROFE ---
+// Esta función va normalmente en SentinelLinkedList.cpp, pero aquí la metemos en el main por simplicidad (si el profe lo permite)
+
+template <typename T>
+T SentinelLinkedList<T>::PopFront()
+{
+    if (count == 0)
+    {
+        cout << "Advertencia: estás haciendo PopFront pero la lista está vacía" << endl;
+        return {};
+    }
+
+    // El primer nodo real está justo después del centinela (NIL)
+    Node<T>* first = NIL->next;
+
+    // Guardamos su valor antes de borrarlo
+    T data = first->data;
+
+    // Ajustamos los punteros para quitar ese nodo de la lista
+    NIL->next = first->next;
+    first->next->prev = NIL;
+
+    // Borramos el nodo y actualizamos el contador
+    delete first;
+    count--;
+
+    return data;
+}
+
 // LQUEUE 
 // Implementación de una cola (FIFO) con la SentinelLinkedList de la clase
 
