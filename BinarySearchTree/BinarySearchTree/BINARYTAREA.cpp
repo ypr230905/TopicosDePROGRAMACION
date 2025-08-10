@@ -313,16 +313,10 @@ public:
             return;
         }
 
-        // Explicación del algoritmo (resumida):
-        // - Usamos una única pila y el puntero lastVisited.
-        // - Bajamos por la izquierda siempre que podamos (push).
-        // - Cuando no podemos bajar (current == nullptr), inspeccionamos el tope.
-        //   * Si el tope tiene un hijo derecho que no ha sido visitado, entonces
-        //     nos movemos a ese hijo derecho (current = peek->rightChild) y seguimos.
-        //   * Si no tiene hijo derecho o ya fue visitado, entonces imprimimos el tope
-        //     y lo sacamos de la pila; lo marcamos como lastVisited.
-        // - lastVisited nos ayuda a saber si el subárbol derecho ya fue procesado
-        //   al volver al ancestro.
+        /* 
+Usamos una única pila y el puntero lastVisited.vBajamos por la izquierda siempre que podamos (push).
+Cuando no podemos bajar (current == nullptr), inspeccionamos el tope.Si el tope tiene un hijo derecho que no ha sido visitado, nos movemos a ese hijo derecho (current = peek->rightChild) y seguimos.
+Si no tiene hijo derecho o ya fue visitado, entonces imprimimos el y lo sacamos de la pila; lo marcamos como lastVisited, y este nos ayuda a saber si el subárbol derecho ya fue al volver al ancestro. */
 
         stack<TreeNode*> nodeStack;
         TreeNode* current = root;
