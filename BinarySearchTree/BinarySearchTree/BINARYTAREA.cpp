@@ -465,7 +465,6 @@ private:
 
 
 // File: BinarySearchTree.cpp
-#include "BinarySearchTree.h"
 #include <cmath>
 
 // Función para calcular logaritmo en base n, que nos ayuda con la altura mínima del árbol.
@@ -486,7 +485,6 @@ int MinimaAlturaDeArbol(int numeroDeNodos, int maximoDeHijosPorNodo)
 
 // File: main.cpp
 #include <iostream>
-#include "BinarySearchTree.h"
 
 using namespace std;
 
